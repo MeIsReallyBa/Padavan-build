@@ -96,9 +96,12 @@ jobs:
         sudo ./clear_tree
         sudo ./build_firmware_modify $TNAME 0
         sudo mv -f images/*.trx /opt/images/
-    - name : Upload packages
-      uses: actions/upload-artifact@master
-      if: always()
+    - name: Upload firmware to release
+      uses: softprops/action-gh-release@v1
+      if: steps.tag.outputs.status == 'success' && !cancelled()
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        name: Padavan-packages
-        path: /opt/images
+        tag_name: ${{ steps.tag.outputs.release_tag }}
+        body_path: release.txt
+        files: /opt/images/*
